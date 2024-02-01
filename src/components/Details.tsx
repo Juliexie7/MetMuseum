@@ -2,7 +2,7 @@ import Footer from "./Footer"
 import Header from "./Header"
 import ReviewList from "./ReviewList"
 import { Link, useLocation } from "react-router-dom";
-import { Box, Text, SimpleGrid, HStack, VStack, Stack, Button, Center } from "@chakra-ui/react";
+import { Box, Text, SimpleGrid, HStack, VStack, Button, Center } from "@chakra-ui/react";
 
 
 const details = () => {

@@ -21,6 +21,7 @@ const GetImage = () => {
   const [error, setError] = useState("");
 
   const toast = useToast();
+  console.log(error);
 
   // when page loads default is Sunflower search
   useEffect(() => {

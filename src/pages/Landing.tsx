@@ -1,16 +1,13 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import apiClient from "../services/api-client";
-import { Input } from '@chakra-ui/react'
-import { Button, ButtonGroup } from '@chakra-ui/react'
 import { Link } from "react-router-dom";
 
 const Landing = () => {
     const [artworkIds, setArtworkIds] = useState<any[]>([]);
-    const [artworkData, setArtworkData] = useState<any[]>([]);
-    const [inputValue, setInputValue] = useState('');
     const [randomArtwork, setRandomArtwork] = useState<any>();
     const [error, setError] = useState("");
+
+    console.log(error);
 
 
 

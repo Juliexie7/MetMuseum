@@ -1,11 +1,7 @@
-import { useState } from "react";
 import "./App.css";
-import { Grid, GridItem } from "@chakra-ui/react";
 import ArtGrid from "./components/ArtGrid";
 import Details from "./components/Details"
 import Landing from "./pages/Landing";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 import RootLayout from './layouts/RootLayout'
 import { 
   createBrowserRouter, 
