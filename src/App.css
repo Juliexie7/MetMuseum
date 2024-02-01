@@ -1,0 +1,31 @@
+#root {
+  /*   max-width: 1280px; */
+  margin: 0 auto;
+  padding: 1rem;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.enterButton {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1.5em;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: backdrop-filter 0.3s; /* Apply transition for a smooth effect */
+}
+
+.enterButton:hover {
+  backdrop-filter: blur(8px); /* Apply the blur effect on hover */
+}
+
+input {
+  background-color: lightgray;
+  border-radius: 5px;
+}
+
+.footerLinks {
+  font-weight: 200;
+}
