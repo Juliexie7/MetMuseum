@@ -34,7 +34,7 @@ const ReviewList = ({objectID}: Props) => {
       };
 
     const createReviews = async (objectID:number, name: string, comment: string) => {
-      const response = await axios.post("http://localhost:3001/details/reviews", {
+      const response = await axios.post("https://met-museum-ten.vercel.app/details/reviews", {
         objectID: objectID, name: name, comment: comment
       });      
       const updatedReviews = [...reviews, ...response.data];
@@ -43,7 +43,7 @@ const ReviewList = ({objectID}: Props) => {
     };
 
     const fetchReviews = async () => {
-        const response = await axios.get("http://localhost:3001/details/reviews");
+        const response = await axios.get("https://met-museum-ten.vercel.app/details/reviews");
         setReviews(response.data);
       };
 
