@@ -5,7 +5,7 @@ interface Props{
     desc:string,
 }
 
-const Review = ({title,desc}:Props) => {
+const ReviewCard = ({title,desc}:Props) => {
   return (
     <>
       <Box p={5} shadow='md' borderWidth='1px'>
@@ -16,4 +16,4 @@ const Review = ({title,desc}:Props) => {
   )
 }
 
-export default Review
+export default ReviewCard

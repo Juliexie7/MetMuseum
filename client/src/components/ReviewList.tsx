@@ -7,11 +7,12 @@ import {
     SimpleGrid,
   } from "@chakra-ui/react";
 import axios from "axios";
-import ReviewCard from "./review";
+import ReviewCard from "./reviewCard";
 import { useEffect, useState } from "react";
 
 interface review {
-    objectID: number,
+    reviewid: number,
+    objectid: number,
     name: string,
     comment: string
 }
@@ -20,7 +21,7 @@ interface Props {
     objectID: number
 }
 
-const Review = ({objectID}: Props) => {
+const ReviewList = ({objectID}: Props) => {
     const [name, setName] = useState("");
     const [comment, setComment] = useState("");
     const [reviews, setReviews] = useState<review[]>([]);
@@ -33,25 +34,27 @@ const Review = ({objectID}: Props) => {
       };
 
     const createReviews = async (objectID:number, name: string, comment: string) => {
-      const response = await axios.post("http://localhost:3001/reviews", {
-        objectID, name, comment
-      });
-      const updatedReviews = [...reviews, response.data];
+      const response = await axios.post("http://localhost:3001/details/reviews", {
+        objectID: objectID, name: name, comment: comment
+      });      
+      const updatedReviews = [...reviews, ...response.data];
       setReviews(updatedReviews);
+      console.log(updatedReviews);
     };
 
     const fetchReviews = async () => {
-        const response = await axios.get("http://localhost:3001/reviews");
+        const response = await axios.get("http://localhost:3001/details/reviews");
         setReviews(response.data);
       };
 
     useEffect(()=>{fetchReviews()},[]);
 
-    const currentReviews = reviews.filter((review)=>review.objectID == objectID);
+    const currentReviews = reviews.filter((review)=>review.objectid == objectID);
 
     const renderedReviews = currentReviews.map((review) => {
       return (
         <ReviewCard
+          key={review.reviewid}
           title={review.name}
           desc={review.comment}
         />
@@ -88,4 +91,4 @@ const Review = ({objectID}: Props) => {
   )
 }
 
-export default Review
+export default ReviewList

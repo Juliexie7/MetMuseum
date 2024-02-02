@@ -2,23 +2,26 @@ import Footer from "./Footer"
 import Header from "./Header"
 import ReviewList from "./ReviewList"
 import { Link, useLocation } from "react-router-dom";
-import { Box, Text, SimpleGrid, HStack, VStack, Button, Center } from "@chakra-ui/react";
+import { Box, Text, SimpleGrid, HStack, VStack, Button } from "@chakra-ui/react";
+import { useEffect } from "react";
 
 
 const details = () => {
   const { state } = useLocation();
 
+  useEffect(() => {
+    // Scroll to the top when the component mounts
+    window.scrollTo(0, 0);
+  }, []);
+  
   return (
     <>
       <Header />
       <SimpleGrid columns={{sm: 1, md: 2}} spacing={10}>
         <Box>          
-          
-          <Center h="50vh">
-          <VStack>
           <Text fontSize='5xl' as='b'>{state.title}</Text>
+          <VStack align="start" textAlign="start" ml={5}>
           <HStack>
-            
             <Text as="b" fontSize='xl'>Artist: </Text>
             <Text fontSize='xl'>{state.artistDisplayName}</Text>
           </HStack>
@@ -43,13 +46,14 @@ const details = () => {
             <Text fontSize='xl'>{state.classification}</Text>
           </HStack>
           </VStack>
-          </Center>
         </Box>
         <Box>
         <img src={state.primaryImage} alt={state.title} />
         </Box>
         <Box>
-        <Button size="md"><Link to="/">Go Back</Link></Button>  
+        <Button size="md">
+            <Link to="/">Go Back</Link>
+        </Button>
         </Box>
       </SimpleGrid>
       <ReviewList objectID={state.objectID}/>   
