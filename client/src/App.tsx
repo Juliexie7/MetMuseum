@@ -14,9 +14,9 @@ import {
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
-      <Route index element={<ArtGrid />} />
-      <Route path="landing" element={<Landing />}  />
-      <Route path="details/:Id" element={<Details />}  />
+      <Route index element={<Landing />} />
+      <Route path="main" element={<ArtGrid />}  />
+      <Route path="/details/:Id" element={<Details />}  />
     </Route>
   ),
 );

@@ -5,10 +5,14 @@ const app = express()
 const mysql = require('mysql')
 
 const db = mysql.createPool({
-    host: '10.0.0.221',
-    user: 'root',
-    password: 'W3lcome1',
-    database: 'finalproject'
+    // host: '10.0.0.221',
+    // user: 'root',
+    // password: 'W3lcome1',
+    // database: 'finalproject'
+    host: 'sql.freedb.tech',
+    user: 'freedb_fsd09',
+    password: 'ABYWk*gB8@yFS8R',
+    database: 'freedb_fsd_09s'
 });
 
 app.use(cors());

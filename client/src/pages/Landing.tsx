@@ -1,13 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
     const [artworkIds, setArtworkIds] = useState<any[]>([]);
     const [randomArtwork, setRandomArtwork] = useState<any>();
-    const [error, setError] = useState("");
-
-    console.log(error);
 
 
 
@@ -22,7 +19,6 @@ const Landing = () => {
                 setArtworkIds(response.data.objectIDs);
                 console.log("ids updated")
             } catch (error) {
-                setError("Failed to fetch artwork data");
             }
         };
 
@@ -48,8 +44,6 @@ const Landing = () => {
 
             // This is a really dirty trick shhh
             catch (error) {
-                setError("Failed to fetch artwork data. Gonna try again tho boss");
-                console.log(error);
                 try {
                     let response = await axios.get(
                         "https://collectionapi.metmuseum.org/public/collection/v1/objects/436524"
@@ -59,8 +53,6 @@ const Landing = () => {
                     console.log("data updated")
                 }
                 catch (error) {
-                    setError("We really failed boss: its so over");
-                    console.log(error);
                 }
 
             }
@@ -92,7 +84,7 @@ const Landing = () => {
                         <p style={{ color: "white", fontSize: "1.5em", textAlign: "center" }}>
                         {randomArtwork.artistDisplayName ? randomArtwork.artistDisplayName : randomArtwork.objectDate}
                         </p>
-                        <button className="enterButton"><Link to="/">Enter Site</Link></button>
+                        <button className="enterButton"><Link to="/main">Enter Site</Link></button>
                     </div>
                 </div>
             )}

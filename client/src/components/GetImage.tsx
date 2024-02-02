@@ -1,47 +1,57 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import {
-  Divider,
   Heading,
   Text,
   Input,
   InputGroup,
   InputRightElement,
   Box,
+  IconButton,
 } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { Link } from "react-router-dom";
+import { FaArrowUp } from "react-icons/fa";
 
 const GetImage = () => {
-  const [artworkIds, setArtworkIds] = useState<any[]>([]);
-  const [artworkData, setArtworkData] = useState<any[]>([]);
+  // VERY crucial id and data both being collected from the browser cache so page reloads without lag
+  const [artworkIds, setArtworkIds] = useState<any[]>(() => {
+    // Retrieve artworkIds from localStorage on component load
+    const savedIds = localStorage.getItem("artworkIds");
+    return savedIds ? JSON.parse(savedIds) : [];
+  });
+  const [artworkData, setArtworkData] = useState<any[]>(() => {
+    const savedData = localStorage.getItem("artworkData");
+    return savedData ? JSON.parse(savedData) : [];
+  });
   const [inputValue, setInputValue] = useState("");
-  const [error, setError] = useState("");
-
   const toast = useToast();
-  console.log(error);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  //Setting an upper limit on items that can render
+  const itemsPerPage = 100;
 
-  // when page loads default is Sunflower search
+  // This is always storing artworkIds in the cache to prevent recalling the ids SEE ABOVE
   useEffect(() => {
-    const fetchArtworkIds = async () => {
-      try {
-        const response = await axios.get(
-          "https://collectionapi.metmuseum.org/public/collection/v1/search?isOnView=true&q=sunflower"
-        );
-        console.log(response.data);
-        setArtworkIds(response.data.objectIDs);
-        console.log("ids updated");
-      } catch (error) {
-        setError("Failed to fetch artwork data");
-      }
-    };
+    localStorage.setItem("artworkIds", JSON.stringify(artworkIds));
+  }, [artworkIds]);
+  // same thing but with data
+  useEffect(() => {
+    localStorage.setItem("artworkData", JSON.stringify(artworkData));
+  }, [artworkData]);
 
-    fetchArtworkIds();
-  }, []);
+  // When page loads this calls the default search "sunflower" the same one called when a user searches an invalid term -- see below
+  // If it sees the artwork Id has nothing
+  useEffect(() => {
+    if (artworkIds.length === 0) {
+      callDefault(); // Call the default API function
+    }
+  }, [artworkIds]); // This is called everytime artworkIds is updated so the page never displays blank
 
   // a workaround method that is called when the user searches something that is not in the database
+  // also the default fallback for other methods
   const callDefault = async () => {
     try {
       const response = await axios.get(
@@ -51,44 +61,68 @@ const GetImage = () => {
       setArtworkIds(response.data.objectIDs);
       console.log("ids updated");
     } catch (error) {
-      setError("Failed to fetch artwork data");
+
     }
   };
 
-  // function that retrives the data based on the IDs in the useState
+  // function that retrieves the data based on the IDs in the useState
   useEffect(() => {
     const fetchArtworkData = async () => {
       try {
-        for (let i = 0; i < artworkIds.length; i++) {
-          // iterate through id's appending them to end of url to recieve JSON data
-          const response = await axios.get(
-            `https://collectionapi.metmuseum.org/public/collection/v1/objects/${artworkIds[i]}`
-          );
-          // Update artworkData with the fetched data using prevState on search its blanked out before.
-          setArtworkData((prevState) => [...prevState, response.data]);
-          console.log("data updated");
-        }
+        // we attempted pagination but ended up just using it as a cap to load first 100 items
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const idsToFetch = artworkIds.slice(start, end);
+        setCurrentPage(1)
+        // calling a map of data with the ids presented by the previous state (either the cache, search for term or default search)
+        const newData = await Promise.all(
+          idsToFetch.map(async (id) => {
+            try {
+              const response = await axios.get(
+                `https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`
+              );
+              return response.data;
+            } catch (error) {
+              console.error(
+                `Failed to fetch artwork data for ID: ${id}`,
+                error
+              );
+              return null; // or handle error as needed
+            }
+          })
+        );
+        setArtworkData([]);
+        // Filter out null values and append the new data
+        setArtworkData((prevState) => [
+          ...prevState,
+          ...newData.filter(Boolean),
+        ]);
+        console.log("All data updated");
       } catch (error) {
-        setError("Failed to fetch artwork data");
+
       }
     };
 
     if (artworkIds.length > 0) {
       fetchArtworkData();
-    } else {
     }
-  }, [artworkIds]); // whenever ID state is updated this function is called which does all the heavy lifting.
+  }, [artworkIds, currentPage]);
+
+
+  // Code for future pagination
+
+  // const handleLoadMore = () => {
+  //   setCurrentPage((prevPage) => prevPage + 1);
+  //   window.scroll({
+  //     top: 0,
+  //     left: 0,
+  //     behavior: "smooth",
+  //   });
+  // };
 
   // TODO: make calls work with api client
-  async function searchForTerm(search: string) {
-    // apiClient
-    //   .get<any>(`/search?isOnView=true&q=${search}`)
-    //   .then((res) => {
-    //     setArtworkIds(res.data);
-    //     console.log("here"); // Log the response data
-    //   })
-    //   .catch((err) => setError(err.message));
 
+  async function searchForTerm(search: string) {
     try {
       // Takes the search term and finds all the IDs associated with it
       const response = await axios.get(
@@ -105,10 +139,13 @@ const GetImage = () => {
           status: "error",
           isClosable: true,
         });
+        // reset data to blank and call default
         setArtworkData([]);
         callDefault();
         return;
       } else {
+        //otherwise set a new batch of ids and delete current data
+        // by reseting the IDs the data function is automatically called
         setArtworkIds(response.data.objectIDs);
         setArtworkData([]);
         console.log("ids updated");
@@ -133,18 +170,25 @@ const GetImage = () => {
     searchForTerm(inputValue); // Handle form submission
   };
 
+  // for 'back to top' button
+  const handleScroll = () => {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    setShowBackToTop(scrollTop > 100);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   // TODO: clean up error catching
-  // if (error) {
-  //   return <div>Error: {error}</div>;
-  // }
 
   return (
     <div>
-      {/* <button>press</button> */}
-      {/* <p>Artist: {artworkData.constituents[0]?.name || "Unknown Artist"}</p>
-      <p>Medium: {artworkData.medium}</p> */}
       <div>
-        <InputGroup size="md" my={4}>
+        <InputGroup size="md" my={7}>
           <form
             onSubmit={handleSubmit}
             style={{ display: "flex", alignItems: "center", width: "100%" }}
@@ -159,13 +203,12 @@ const GetImage = () => {
               pr="4.5rem"
             />
             <InputRightElement width="4.5rem">
-              <Button type="submit" size="sm">
+              <Button type="submit" size="sm" mr={1}>
                 Search
               </Button>
             </InputRightElement>
           </form>
         </InputGroup>
-        <Divider my={5} />
 
         <ResponsiveMasonry
           columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}
@@ -173,11 +216,11 @@ const GetImage = () => {
         >
           <Masonry gutter="20px">
             {artworkData.map((artwork, index) => {
-              if (artwork.primaryImage) {
+              if (artwork.primaryImageSmall) {
                 return (
                   <div key={index}>
-                    <Link to={"details/" + artwork.objectID} state={artwork}>
-                      <img src={artwork.primaryImage} alt={artwork.title} />
+                    <Link to={"/details/" + artwork.objectID} state={artwork}>
+                      <img src={artwork.primaryImageSmall} alt={artwork.title} />
                     </Link>
                     <Box textAlign="left" m={1} py={1}>
                       <Heading as="h4" size="sm">
@@ -196,6 +239,16 @@ const GetImage = () => {
             })}
           </Masonry>
         </ResponsiveMasonry>
+        {showBackToTop && (
+          <IconButton
+            icon={<FaArrowUp />}
+            aria-label="Back to Top"
+            position="fixed"
+            bottom="4"
+            right="4"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          />
+        )}
       </div>
     </div>
   );
