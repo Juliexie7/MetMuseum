@@ -9,10 +9,11 @@ const db = mysql.createPool({
     // user: 'root',
     // password: 'W3lcome1',
     // database: 'finalproject'
-    host: 'sql.freedb.tech',
-    user: 'freedb_fsd09',
-    password: 'ABYWk*gB8@yFS8R',
-    database: 'freedb_fsd_09s'
+    host: 'libraryproj.mysql.database.azure.com',
+    user: 'libraryadmin',
+    password: 'Password123',
+    database: 'library1',
+    port:3306
 });
 
 app.use(cors());
@@ -22,6 +23,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.get('/details/reviews', (req, res)=>{
     const sqlSelect = "select * from review";
     db.query(sqlSelect, (err, result)=>{
+        console.log(err, result);
         res.send(result);
     });
   })
